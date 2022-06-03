@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.juarez.koin.databinding.ActivityMainBinding
+import com.juarez.koin.posts.ui.PostsState
 import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         mainViewModel.getUsers()
+        mainViewModel.getPosts()
 
         lifecycleScope.launchWhenStarted {
             mainViewModel.usersState.collect {
@@ -36,8 +38,32 @@ class MainActivity : AppCompatActivity() {
                     }
                     is UsersState.Success -> {
                         binding.progressBarMain.isVisible = false
-                        Toast.makeText(this@MainActivity, "success", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "success users", Toast.LENGTH_SHORT)
+                            .show()
                         Log.d("User", "success ${it.users}")
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.postsState.collect {
+                when (it) {
+                    is PostsState.Error -> {
+                        binding.progressBarMain.isVisible = false
+                        Toast.makeText(this@MainActivity, "error", Toast.LENGTH_SHORT).show()
+                        Log.d("Post", "exception ${it.exception.localizedMessage}")
+                    }
+                    is PostsState.Loading -> {
+                        binding.progressBarMain.isVisible = true
+                        Log.d("Post", "loading")
+                    }
+                    is PostsState.Success -> {
+                        binding.progressBarMain.isVisible = false
+                        Toast.makeText(this@MainActivity, "success posts", Toast.LENGTH_SHORT)
+                            .show()
+                        Log.d("Post", "success ${it.users}")
                     }
                     else -> Unit
                 }
